@@ -222,21 +222,6 @@ A interface foi desenvolvida com Tailwind CSS, oferecendo:
 - Tema consistente
 - Experiência de usuário intuitiva
 
-## 📝 Próximos Passos
-
-Para expandir o sistema, considere implementar:
-
-- [ ] Sistema de disciplinas mais robusto
-- [ ] Calendário escolar
-- [ ] Sistema de presença
-- [ ] Relatórios em PDF
-- [ ] Notificações em tempo real
-- [ ] Upload de arquivos
-- [ ] Sistema de mensagens
-- [ ] Backup automático
-- [ ] Logs de auditoria
-- [ ] Testes automatizados
-
 ## 🤝 Contribuição
 
 1. Faça um fork do projeto
