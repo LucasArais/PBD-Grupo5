@@ -1,0 +1,18 @@
+{
+  "name": "gestao-escolar",
+  "version": "1.0.0",
+  "description": "Sistema de gestão escolar com React e Node.js",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd apps/frontend && npm run dev",
+    "dev:backend": "cd apps/backend && npm run dev",
+    "install:all": "npm install && cd apps/frontend && npm install && cd ../backend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^7.6.0"
+  }
+}

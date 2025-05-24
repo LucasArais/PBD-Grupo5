@@ -1,0 +1,183 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Usuario {
+  id    Int    @id @default(autoincrement())
+  nome  String
+  email String @unique
+  senha String
+  tipo  String // 'aluno' | 'professor' | 'diretor'
+
+  // Relacionamentos
+  aluno     Aluno?
+  professor Professor?
+
+  @@map("usuarios")
+}
+
+model Turma {
+  id   Int    @id @default(autoincrement())
+  nome String
+
+  // Relacionamentos
+  alunos     Aluno[]
+  professores TurmaProfessor[]
+
+  @@map("turmas")
+}
+
+model Aluno {
+  id         Int @id @default(autoincrement())
+  usuario_id Int @unique
+  turma_id   Int?
+
+  // Relacionamentos
+  usuario Usuario @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  turma   Turma?  @relation(fields: [turma_id], references: [id])
+  notas   Nota[]
+  cardapiosAlunos CardapioAluno[]
+  restricoesAlimentares RestricaoAlimentar[]
+
+  @@map("alunos")
+}
+
+model Professor {
+  id         Int @id @default(autoincrement())
+  usuario_id Int @unique
+
+  // Relacionamentos
+  usuario Usuario            @relation(fields: [usuario_id], references: [id], onDelete: Cascade)
+  turmas  TurmaProfessor[]
+  notas   Nota[]
+
+  @@map("professores")
+}
+
+model TurmaProfessor {
+  id           Int @id @default(autoincrement())
+  turma_id     Int
+  professor_id Int
+
+  // Relacionamentos
+  turma     Turma     @relation(fields: [turma_id], references: [id], onDelete: Cascade)
+  professor Professor @relation(fields: [professor_id], references: [id], onDelete: Cascade)
+
+  @@unique([turma_id, professor_id])
+  @@map("turma_professores")
+}
+
+model Nota {
+  id           Int   @id @default(autoincrement())
+  aluno_id     Int
+  professor_id Int
+  disciplina   String
+  valor        Float
+  created_at   DateTime @default(now())
+
+  // Relacionamentos
+  aluno     Aluno     @relation(fields: [aluno_id], references: [id], onDelete: Cascade)
+  professor Professor @relation(fields: [professor_id], references: [id], onDelete: Cascade)
+
+  @@map("notas")
+}
+
+// === MÓDULO DE COZINHA ===
+
+model Ingrediente {
+  id          Int    @id @default(autoincrement())
+  nome        String
+  unidade     String // kg, litros, unidades, etc.
+  categoria   String // proteína, carboidrato, vegetal, etc.
+  created_at  DateTime @default(now())
+
+  // Relacionamentos
+  estoque     Estoque[]
+  cardapioItens CardapioItem[]
+
+  @@map("ingredientes")
+}
+
+model Estoque {
+  id             Int      @id @default(autoincrement())
+  ingrediente_id Int
+  quantidade     Float
+  preco_unitario Float
+  data_compra    DateTime
+  data_validade  DateTime?
+  fornecedor     String?
+  created_at     DateTime @default(now())
+
+  // Relacionamentos
+  ingrediente Ingrediente @relation(fields: [ingrediente_id], references: [id], onDelete: Cascade)
+
+  @@map("estoque")
+}
+
+model Cardapio {
+  id          Int      @id @default(autoincrement())
+  nome        String
+  data        DateTime
+  tipo_refeicao String // café da manhã, almoço, lanche, jantar
+  ativo       Boolean  @default(true)
+  created_at  DateTime @default(now())
+
+  // Relacionamentos
+  itens       CardapioItem[]
+  cardapiosAlunos CardapioAluno[]
+
+  @@map("cardapios")
+}
+
+model CardapioItem {
+  id             Int   @id @default(autoincrement())
+  cardapio_id    Int
+  ingrediente_id Int
+  quantidade     Float
+  observacoes    String?
+
+  // Relacionamentos
+  cardapio    Cardapio    @relation(fields: [cardapio_id], references: [id], onDelete: Cascade)
+  ingrediente Ingrediente @relation(fields: [ingrediente_id], references: [id], onDelete: Cascade)
+
+  @@unique([cardapio_id, ingrediente_id])
+  @@map("cardapio_itens")
+}
+
+model CardapioAluno {
+  id          Int      @id @default(autoincrement())
+  aluno_id    Int
+  cardapio_id Int
+  personalizado Boolean @default(false)
+  observacoes String? // alergias, restrições alimentares
+  created_at  DateTime @default(now())
+
+  // Relacionamentos
+  aluno    Aluno    @relation(fields: [aluno_id], references: [id], onDelete: Cascade)
+  cardapio Cardapio @relation(fields: [cardapio_id], references: [id], onDelete: Cascade)
+
+  @@unique([aluno_id, cardapio_id])
+  @@map("cardapio_alunos")
+}
+
+model RestricaoAlimentar {
+  id       Int    @id @default(autoincrement())
+  aluno_id Int
+  tipo     String // alergia, intolerância, preferência
+  descricao String
+  ativo    Boolean @default(true)
+  created_at DateTime @default(now())
+
+  // Relacionamentos
+  aluno Aluno @relation(fields: [aluno_id], references: [id], onDelete: Cascade)
+
+  @@map("restricoes_alimentares")
+}
